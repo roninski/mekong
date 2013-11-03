@@ -40,6 +40,8 @@ sub cgi_main {
 	my $search_terms = param('search_terms');
 	my $action = param('action');
 	my $isbn = param('isbn');
+	my $card_no = param('card_no');
+	my $security_code = param('security_code');
 	my $authenticated = 0;
 	
 	# check if logged in
@@ -64,6 +66,23 @@ sub cgi_main {
 		if (defined $isbn && legal_isbn($isbn)){
 			delete_basket($login, $isbn);
 			print "<h6>Successfully deleted from Cart</h6>\n";
+		}
+	}
+
+	# checking out
+	if ($authenticated && defined $action && $action eq "Checked Out"){
+		if (defined $card_no && legal_credit_card_number($card_no)){
+			if (defined $security_code && legal_expiry_date($security_code)){
+				finalize_order($login, $card_no, $security_code);
+				print "<h6>Successfully checked out!</h6><br>\n";
+				$action = "Search";
+			} else {
+				print "<h6>Invalid expirty date.</h6><br>\n";
+				$action = "Check Out";
+			}
+		} else {
+			print "<h6>Invalid credit card number (should be 16 digits, no other punctuation or spaces)</h6><br>\n";
+			$action = "Check Out";
 		}
 	}
 
@@ -100,7 +119,9 @@ sub cgi_main {
 			print "<form method='post'><input class='btn' type='submit' name='action' value='Check Out'></form>\n";
 		} else {
 			print "<br><h6>Cart is empty</h6>\n";
-			print "<br><form method='post'><input class='btn' type='submit' name='action' value='Go Back'></form>\n";
+			print "<br><form method='post'><form method='post'><input type='hidden' name='login' value='$login'>
+			<input type='hidden' name='password' value='$password'>
+			<input class='btn' type='submit' name='action' value='Go Back'></form>\n";
 		}
 
 	# View Orders
@@ -118,11 +139,15 @@ sub cgi_main {
 				print "<h6>Card no: $card_no (Expiry $expiry_date )</h6>";
 				print show_order(@ordered_books);
 			}
-			print "<br><form method='post'><input class='btn' type='submit' name='action' value='Go Back'></form>";
+			print "<br><form method='post'><input type='hidden' name='login' value='$login'>
+				<input type='hidden' name='password' value='$password'>
+				<input class='btn' type='submit' name='action' value='Go Back'></form>";
 
 		} else {
 			print "<br><h6>No Orders Made</h6>\n";
-			print "<br><form method='post'><input class='btn' type='submit' name='action' value='Go Back'></form>";
+			print "<br><form method='post'><input type='hidden' name='login' value='$login'>
+				<input type='hidden' name='password' value='$password'>
+				<input class='btn' type='submit' name='action' value='Go Back'></form>";
 		}
 
 	# Checking Out
@@ -131,20 +156,23 @@ sub cgi_main {
 		my @inBasket = read_basket($login);
 		if (@inBasket){
 			print no_action_basket(@inBasket);
-
+			print check_out_form($login, $password);
 		} else {
 			print "<br><h6>Can't check out, basket is empty.</h6>";
+			print "<br><form method='post'><input type='hidden' name='login' value='$login'>
+				<input type='hidden' name='password' value='$password'>
+				<input class='btn' type='submit' name='action' value='Go Back'></form>";
 		}
 	# Searching
 	} elsif ($authenticated && defined $search_terms){
 		print logged_in_form($login, $password);
-		print main_selections();
+		print main_selections($login, $password);
 		print search_results($search_terms, $login, $password);
 
 	# Home page
 	} elsif ($authenticated) {
 		print logged_in_form($login, $password);
-		print main_selections();
+		print main_selections($login, $password);
 
 	# Failed login
 	} else {
@@ -180,7 +208,23 @@ sub logged_in_form {
 	<form method="post">
 	<input type="hidden" name="login" value="$login">
 	<input type="hidden" name="password" value="$password">
+	</form>
 eof
+}
+
+sub check_out_form{
+	my ($login, $password) = @_;
+	my $toReturn = 
+"<form method='post'>
+<input type='hidden' name='login' value='$login'>
+<input type='hidden' name='password' value='$password'>
+<label for='card_no'>Credit Card Number:</label>
+<input type='text' name='card_no' id='card_no' width='16' />
+<label for='security_code'>Expiry Date:</label>
+<input type='text' name='security_code' id='security_code' width='8' />
+<button type='submit' name='action' value='Checked Out'>Check Out</button>
+<input class='btn' type='submit' name='action' value='Go Back'></form>";
+	return $toReturn;
 }
 
 sub create_account_form{
@@ -269,11 +313,14 @@ sub create_new_account{
 }
 
 # simple search form
-sub main_selections {
+sub main_selections{
+	my ($login, $password) = @_;
 	return <<eof;
 	<p>
 	<span>
 	<form method="post" style="display:inline;">
+		<input type='hidden' name='login' value='$login'>
+		<input type='hidden' name='password' value='$password'>
 		<label for="search">Search for a book:</label>
 		<input type="text" name="search_terms" id="search" size=60>
 		<input class="btn" type="submit" name="action" value="Search">
@@ -294,7 +341,6 @@ sub search_results {
 	my @books = split /\n/, $descriptions;
 	# "%s %7s %s - %s\n", $isbn, $book_details{$isbn}{price}, $title, $authors
 	my $toReturn = "";
-	$toReturn .= "<p>$search_terms\n<p>@matching_isbns\n";
 	$toReturn .= "<table>\n";
 	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th><th>Actions</th>\n</tr>";
 	my $alt = 0;
@@ -462,10 +508,9 @@ eof
 # HTML at bottom of every screen
 #
 sub page_trailer() {
-	my $debugging_info = debugging_info();
+	#my $debugging_info = debugging_info();
 	
 	return <<eof;
-	$debugging_info
 	</div>
 <body>
 </html>

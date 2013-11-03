@@ -19,6 +19,7 @@ Date		Start	Stop	Activity		Comments
 2013/11/04 	00:00	00:50	Debugging		Debugging errors with order display code
 2013/11/04	01:00	01:40	Styling			Minor style changes for orders
 2013/11/04	01:40	03:00	Coding			Implemented adding and removing of items from basket
+2013/11/04	03:00	03:50	Coding			Implemented checking out
 
 To do:
 Check Out (Level 1)
