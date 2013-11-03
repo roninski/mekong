@@ -6,7 +6,8 @@ Date		Start	Stop	Activity		Comments
 2013/11/03	14:00	14:15	CSS Styling 	Switched to Skeleton CSS styling
 2013/11/03	14:15	15:00	HTML Styling	Set up HTML tables for showing search results
 2013/11/03	15:00	16:00	CSS Styling		Styled HTML search results tables
-
+2013/11/03	16:30	17:15	Image handling	Handled images for books
+2013/11/03	17:15	17:45	Login Form		Set up the login form, no login handling yet
 
 To do:
 Check user's Passowrd (Level 0)
@@ -18,3 +19,15 @@ Make nicer, add images
 Interface (Level 0)
 Your web site must generate nicely formatted convenient-to-use web pages including appropriate navigation facilities and instructions for naive users. Although this is not a graphic design exercise you should produce pages with a common and somewhat distinctive look-and-feel. You may find CSS useful for this.
 Note the model implementation does not meet this requirement and you do not have to match its poor layout & design.
+
+Creating Accounts (Level 1)
+Add a button & form to allow a user to create an account.
+
+Basket (Level 1)
+Add a button to display the user's basket.
+
+Check Out (Level 1)
+Add buttons and form to allow the user to checkout
+
+Orders (Level 1)
+Add a button to allow the user to view their orders.

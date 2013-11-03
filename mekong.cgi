@@ -53,10 +53,14 @@ sub cgi_main {
 sub login_form {
 	return <<eof;
 	<p>
-	<form>
-		login: <input type="text" name="login" size=16></input>
+	<form method="post" enctype="multipart/form-data">
+	<label for="login">Username:</label>
+	<input type="text" name="login" id="login"  width="20" />
+	<label for="password">Password:</label>
+	<input type="password" name="password" id="password"  width="20" />
+ 	<input class="btn" type="submit" name="action" value="Login">
+  	<input class="btn" type="submit" name="action" value="Create New Account">
 	</form>
-	<p>
 eof
 }
 
@@ -81,7 +85,7 @@ sub search_results {
 	my $toReturn = "";
 	$toReturn .= "<p>$search_terms\n<p>@matching_isbns\n";
 	$toReturn .= "<table>\n";
-	$toReturn .= "  <tr>\n<th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
+	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
 	my $alt = 0;
 	foreach my $book (@books){
 		# Alternating colorus (set in CSS)
@@ -93,8 +97,14 @@ sub search_results {
 			$alt = 1;
 		}
 		my @thisBook = split /\t/, $book;
+		my $image = 1;
 		foreach my $detail (@thisBook){
-			$toReturn .= "<td>$detail</td>";			
+			if ($image == 1){
+				$toReturn .= "<td><img src=$detail></td>";
+				$image = 0;
+			} else {
+				$toReturn .= "<td>$detail</td>";
+			}
 		}
 		$toReturn .= "\n";
 		$toReturn .= "  </tr>\n";
@@ -792,7 +802,9 @@ sub get_book_descriptions {
 		my $authors = $book_details{$isbn}{authors} || "";
 		$authors =~ s/\n([^\n]*)$/ & $1/g;
 		$authors =~ s/\n/, /g;
-		$descriptions .= sprintf "%s\t%7s\t%s\t%s\n", $isbn, $book_details{$isbn}{price}, $title, $authors;
+		$descriptions .= sprintf "%s\t%s\t%7s\t%s\t%s\n", $book_details{$isbn}{smallimageurl}, 
+					  $isbn, $book_details{$isbn}{price}, $title, $authors;
+
 	}
 	return $descriptions;
 }

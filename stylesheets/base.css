@@ -44,10 +44,11 @@
 		content: '';
 		content: none; }
 	table, td, th {
+		vertical-align: top;
 		border: 2px solid black;
 		border-color: #248E8E;
 		border-collapse: collapse;
-		border-spacing: 5; }
+		border-spacing: 2; }
 	table {
 		width:100%;
 	}
@@ -58,17 +59,28 @@
 		background-color:#248E8E;
 	}
 	td {
-		padding:10px;
+		padding:3px;
 		background-color:#64DEDE;
 	}
 	tr.alt td {
 		border: 2px solid black;
 		border-color: #248E8E;
 		border-collapse: collapse;
-		border-spacing: 5;
-		padding:10px;
+		border-spacing: 2;
+		padding:3px;
 		background-color:#DAEEF2;
 	}
+
+	tr.login td {
+		border: 2px solid black;
+		border-color: #000;
+		border-collapse: collapse;
+		border-spacing: 2;
+		padding:2px;
+		background-color:#FFF;
+	}
+
+	p {float: left;}
 
 
 
