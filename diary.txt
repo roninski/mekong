@@ -13,10 +13,10 @@ Date		Start	Stop	Activity		Comments
 2013/11/03	19:45	20:15	Form Building	Built form for creating an account
 2013/11/03	20:30	21:30	Coding			Built account creation functions to handle data passed from the form
 2013/11/03	21:30	21:55	Debugging		Fixing code for account creation
+2013/11/03	22:15	22:30	Form Building	Adding more search bar locations and buttons for cart and orders
+2013/11/03	22:30	23:05	Coding			Added code to display cart	
 
 To do:
-Creating Accounts (Level 1)
-Add a button & form to allow a user to create an account.
 
 Basket (Level 1)
 Add a button to display the user's basket.

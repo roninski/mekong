@@ -67,13 +67,21 @@ sub cgi_main {
 	} elsif (defined $action && $action eq "Create New Account"){
 		print create_account_form();
 
-	# Logged in
+	# Basket
+	} elsif ($authenticated && defined $action && $action eq "View Cart"){
+		my @inBasket = read_basket($login);
+		print show_basket(@inBasket);
+
+	# Searching
 	} elsif ($authenticated && defined $search_terms){
 		print logged_in_form($login, $password);
+		print main_selections();
 		print search_results($search_terms);
+
+	# Home page
 	} elsif ($authenticated) {
 		print logged_in_form($login, $password);
-		print search_form();
+		print main_selections();
 
 	# Failed login
 	} else {
@@ -189,6 +197,7 @@ sub is_account_creatable{
 }
 
 sub create_new_account{
+	# should not be hard coded but is, will fix later if I have time
 	my ($login, $password, $name, $street, $city, $state, $postcode, $email) = @_;
 	open(USER, ">$users_dir/$login");
 	print USER
@@ -197,13 +206,18 @@ sub create_new_account{
 }
 
 # simple search form
-sub search_form {
+sub main_selections {
 	return <<eof;
 	<p>
-	<form>
+	<span>
+	<form method="post" style="display:inline;">
 		<label for="search">Search for a book:</label>
-		<input type="text" name="search_terms" id="search" size=60></input>
+		<input type="text" name="search_terms" id="search" size=60>
+		<input class="btn" type="submit" name="action" value="Search">
+	 	<input class="btn" type="submit" name="action" value="View Cart">
+	  	<input class="btn" type="submit" name="action" value="View Orders">
 	</form>
+	</span>
 	<p>
 eof
 }
@@ -217,6 +231,41 @@ sub search_results {
 	# "%s %7s %s - %s\n", $isbn, $book_details{$isbn}{price}, $title, $authors
 	my $toReturn = "";
 	$toReturn .= "<p>$search_terms\n<p>@matching_isbns\n";
+	$toReturn .= "<table>\n";
+	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
+	my $alt = 0;
+	foreach my $book (@books){
+		# Alternating colorus (set in CSS)
+		if ($alt == 1){
+			$toReturn .= "  <tr>\n";
+			$alt = 0;
+		} else {
+			$toReturn .= "  <tr class=\"alt\">";
+			$alt = 1;
+		}
+		my @thisBook = split /\t/, $book;
+		my $image = 1;
+		foreach my $detail (@thisBook){
+			if ($image == 1){
+				$toReturn .= "<td><img src=$detail></td>";
+				$image = 0;
+			} else {
+				$toReturn .= "<td>$detail</td>";
+			}
+		}
+		$toReturn .= "\n";
+		$toReturn .= "  </tr>\n";
+	}
+	$toReturn .= "</table>\n";
+	$toReturn .= "<p>";
+	return $toReturn;
+}
+
+sub show_basket(@){
+	my @isbns = @_;
+	my $descriptions = get_book_descriptions(@isbns);
+	my @books = split /\n/, $descriptions;
+	# Currently same code as 
 	$toReturn .= "<table>\n";
 	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
 	my $alt = 0;
