@@ -97,8 +97,9 @@ Content-Type: text/html
 <html lang="en">
 <head>
 <title>mekong.com.au</title>
-<link href="css/foundation.css" rel="stylesheet">
-<script src="js/foundation.min.js"></script>
+<link rel="stylesheet" href="stylesheets/base.css">
+<link rel="stylesheet" href="stylesheets/skeleton.css">
+<link rel="stylesheet" href="stylesheets/layout.css">
 </head>
 <body>
 <p>

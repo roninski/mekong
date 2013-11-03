@@ -7,4 +7,4 @@ Base given code has been used but altered to fulfil assignment criteria.
 
 Do not use your real password, as there is a high chance it won't be encrypted and will be available to me.
 
-Currently using Foundation 4 CSS theme, unaltered
+Switched to Skeleton
