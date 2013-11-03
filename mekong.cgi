@@ -76,14 +76,24 @@ sub search_results {
 	my ($search_terms) = @_;
 	my @matching_isbns = search_books($search_terms);
 	my $descriptions = get_book_descriptions(@matching_isbns);
-	return <<eof;
-	<p>$search_terms
-	<p>@matching_isbns
-	<pre>
-		$descriptions
-	</pre>
-	<p>
-eof
+	my @books = split /\n/, $descriptions;
+	# "%s %7s %s - %s\n", $isbn, $book_details{$isbn}{price}, $title, $authors
+	my $toReturn = "";
+	$toReturn .= "<p>$search_terms\n<p>@matching_isbns\n";
+	$toReturn .= "<table>\n";
+	$toReturn .= "  <tr>\n<th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
+	foreach my $book (@books){
+		$toReturn .= "  <tr>\n";
+		my @thisBook = split /\t/, $book;
+		foreach my $detail (@thisBook){
+			$toReturn .= "<td>$detail</td>";			
+		}
+		$toReturn .= "\n";
+		$toReturn .= "  </tr>\n";
+	}
+	$toReturn .= "</table>\n";
+	$toReturn .= "<p>";
+	return $toReturn;
 }
 
 #
@@ -484,35 +494,6 @@ sub read_order {
 	return @lines;
 }
 
-##########################################################################################################
-# THEIR FUNCTIONS END HERE
-#
-#
-#
-#
-##########################################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ###
 ### functions below are only for testing from the command line
 ### Your do not need to use these funtions
@@ -803,7 +784,7 @@ sub get_book_descriptions {
 		my $authors = $book_details{$isbn}{authors} || "";
 		$authors =~ s/\n([^\n]*)$/ & $1/g;
 		$authors =~ s/\n/, /g;
-		$descriptions .= sprintf "%s %7s %s - %s\n", $isbn, $book_details{$isbn}{price}, $title, $authors;
+		$descriptions .= sprintf "%s\t%7s\t%s\t%s\n", $isbn, $book_details{$isbn}{price}, $title, $authors;
 	}
 	return $descriptions;
 }

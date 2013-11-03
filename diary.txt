@@ -3,7 +3,10 @@ Date		Start	Stop	Activity		Comments
 2013/11/02	12:10	12:30	Initialisation	Initialised repo on git and github, got all files ready for work
 2013/11/03	12:30	13:30	Remote Setup	Set up easy transferal of just the main cgi script to a remote server
 2013/11/03	13:30	14:00	CSS Styling		Attempted to change CSS styling to Foundation 4 CSS Theme
-2013/11/03	14:00	14:15	CSS Styling 	Switched to Skeleton
+2013/11/03	14:00	14:15	CSS Styling 	Switched to Skeleton CSS styling
+2013/11/03	14:15	15:00	HTML Styling	Set up HTML tables for showing search results
+2013/11/03	15:00			CSS Styling		Styled HTML search results tables
+
 
 To do:
 Check user's Passowrd (Level 0)
