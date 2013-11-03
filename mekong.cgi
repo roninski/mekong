@@ -22,10 +22,13 @@ exit 0;
 # to the search screen and it doesn't format the
 # search results at all
 
-# This is very simple CGI code that goes straight
-# to the search screen and it doesn't format the
-# search results at all
-
+#########################################################################################################
+#
+#
+# Most code will go here
+#
+#
+#########################################################################################################
 sub cgi_main {
 	print page_header();
 	
@@ -94,8 +97,8 @@ Content-Type: text/html
 <html lang="en">
 <head>
 <title>mekong.com.au</title>
-<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+<link href="css/foundation.css" rel="stylesheet">
+<script src="js/foundation.min.js"></script>
 </head>
 <body>
 <p>
@@ -479,6 +482,35 @@ sub read_order {
 	foreach (@lines[0..2]) {s/.*=//};
 	return @lines;
 }
+
+##########################################################################################################
+# THEIR FUNCTIONS END HERE
+#
+#
+#
+#
+##########################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###
 ### functions below are only for testing from the command line
