@@ -7,19 +7,12 @@ Date		Start	Stop	Activity		Comments
 2013/11/03	14:15	15:00	HTML Styling	Set up HTML tables for showing search results
 2013/11/03	15:00	16:00	CSS Styling		Styled HTML search results tables
 2013/11/03	16:30	17:15	Image handling	Handled images for books
-2013/11/03	17:15	17:45	Login Form		Set up the login form, no login handling yet
+2013/11/03	17:15	17:45	Form Building	Set up the login form, no login handling yet
+2013/11/03	18:00	18:15	Login handling	Handled logging in
+2013/11/03	19:00	19:45	Login fixing	Ensures login screen can't be bypassed
+2013/11/03	19:45	20:15	Form Building	Built form for creating an account
 
 To do:
-Check user's Passowrd (Level 0)
-Change the login form to request a password & check this is correct.
-
-Display Search results (Level 0)
-Make nicer, add images
-
-Interface (Level 0)
-Your web site must generate nicely formatted convenient-to-use web pages including appropriate navigation facilities and instructions for naive users. Although this is not a graphic design exercise you should produce pages with a common and somewhat distinctive look-and-feel. You may find CSS useful for this.
-Note the model implementation does not meet this requirement and you do not have to match its poor layout & design.
-
 Creating Accounts (Level 1)
 Add a button & form to allow a user to create an account.
 
@@ -27,7 +20,18 @@ Basket (Level 1)
 Add a button to display the user's basket.
 
 Check Out (Level 1)
-Add buttons and form to allow the user to checkout
+Add buttons and form to allow the user to checkout.
 
 Orders (Level 1)
 Add a button to allow the user to view their orders.
+
+Add/details in Search results(Level 2)
+Add buttons to allow users to view the details of any book in their search results and to add any book to their basket.
+
+Drop/details in Basket (Level 2)
+Add buttons to allow users to view the details of any book in their basket and to drop (remove) any book to their basket.
+
+Interface (Level 0)
+Your web site must generate nicely formatted convenient-to-use web pages including appropriate navigation facilities and instructions for naive users. Although this is not a graphic design exercise you should produce pages with a common and somewhat distinctive look-and-feel. You may find CSS useful for this.
+Note the model implementation does not meet this requirement and you do not have to match its poor layout & design.
+

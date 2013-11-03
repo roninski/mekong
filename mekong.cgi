@@ -36,24 +36,41 @@ sub cgi_main {
 	read_books($books_file);
 
 	my $login = param('login');
+	my $password = param('password');
 	my $search_terms = param('search_terms');
+	my $action = param('action');
+	my $authenticated = 0;
 	
-	if (defined $search_terms) {
+	# check if logged in
+	if (defined $login && defined $password){
+		$authenticated = authenticate($login, $password);
+	}
+
+	# go to specific page
+	if (defined $action && $action eq "Create New Account"){
+		print create_account_form();
+	} elsif ($authenticated && defined $search_terms){
+		print logged_in_form($login, $password);
 		print search_results($search_terms);
-	} elsif (defined $login) {
+	} elsif ($authenticated) {
+		print logged_in_form($login, $password);
 		print search_form();
 	} else {
+		if (defined $login || defined $password){
+			print "<p>$last_error</p>";
+		}
 		print login_form();
 	}
-	
 	print page_trailer();
 }
 
 # simple login form without authentication	
 sub login_form {
 	return <<eof;
+	<br>
+	<br>
 	<p>
-	<form method="post" enctype="multipart/form-data">
+	<form method="post">
 	<label for="login">Username:</label>
 	<input type="text" name="login" id="login"  width="20" />
 	<label for="password">Password:</label>
@@ -61,6 +78,40 @@ sub login_form {
  	<input class="btn" type="submit" name="action" value="Login">
   	<input class="btn" type="submit" name="action" value="Create New Account">
 	</form>
+	</p>
+eof
+}
+
+sub logged_in_form {
+	my ($login, $password) = @_;
+	return <<eof;
+	<form method="post">
+	<input type="hidden" name="login" value="$login">
+	<input type="hidden" name="password" value="$password">
+eof
+}
+
+sub create_account_form{
+	return <<eof;
+	<br>
+	<br>
+<form method="post">
+	<label for="login">Username:</label>
+	<input type="text" name="login" id="login" width="20" />
+	<label for="password">Password:</label>
+	<input type="password" name="password" id="password" width="20" />
+	<label for="name">Name:</label>
+	<input type="text" name="name" id="name" />
+	<label for="address">Street Address:</label>
+	<input type="text" name="address" id="address" />
+	<label for="city">City:</label>
+	<input type="text" name="city" id="city" />
+	<label for="state">State:</label>
+	<input type="text" name="state" id="state" />
+	<label for="postcode">Postcode:</label>
+	<input type="text" name="postcode" id="postcode" width="6" />
+	<input class="btn" type="submit" name="action" value="Create Account">
+</form>
 eof
 }
 
