@@ -39,6 +39,7 @@ sub cgi_main {
 
 	my $search_terms = param('search_terms');
 	my $action = param('action');
+	my $isbn = param('isbn');
 	my $authenticated = 0;
 	
 	# check if logged in
@@ -48,8 +49,25 @@ sub cgi_main {
 
 
 
-	# go to specific page
+	# adding to basket
+	if ($authenticated && defined $action && $action eq "Add to Cart"){
+		$action = "Search";
+		if (defined $isbn && legal_isbn($isbn)){
+			add_basket($login, $isbn);
+			print "<h6>Successfully added to cart!</h6>\n";
+		}
+	}
 
+	# removing from basket
+	if ($authenticated && defined $action && $action eq "Remove from Cart"){
+		$action = "View Cart";
+		if (defined $isbn && legal_isbn($isbn)){
+			delete_basket($login, $isbn);
+			print "<h6>Successfully deleted from Cart</h6>\n";
+		}
+	}
+
+	# go to specific page
 	# account creation
 	if (defined $action && $action eq "Create Account"){
 		if (defined $login && defined $password && defined $name && defined $street
@@ -74,12 +92,15 @@ sub cgi_main {
 		print logged_in_form($login, $password);
 		my @inBasket = read_basket($login);
 		if (@inBasket){
-			print show_basket(@inBasket);
-			print "<br><form><input class='btn' type='submit' name='action' value='Go Back'>\n";
-			print "<form><input class='btn' type='submit' name='action' value='Check Out'></form>\n";
+			print show_basket($login, $password, @inBasket);
+			print "<br><form method='post'>
+				<input type='hidden' name='login' value='$login'>
+				<input type='hidden' name='password' value='$password'>
+				<input class='btn' type='submit' name='action' value='Go Back'>\n";
+			print "<form method='post'><input class='btn' type='submit' name='action' value='Check Out'></form>\n";
 		} else {
 			print "<br><h6>Cart is empty</h6>\n";
-			print "<br><form><input class='btn' type='submit' name='action' value='Go Back'></form>\n";
+			print "<br><form method='post'><input class='btn' type='submit' name='action' value='Go Back'></form>\n";
 		}
 
 	# View Orders
@@ -97,19 +118,28 @@ sub cgi_main {
 				print "<h6>Card no: $card_no (Expiry $expiry_date )</h6>";
 				print show_order(@ordered_books);
 			}
-			print "<br><form><input class='btn' type='submit' name='action' value='Go Back'></form>";
+			print "<br><form method='post'><input class='btn' type='submit' name='action' value='Go Back'></form>";
 
 		} else {
 			print "<br><h6>No Orders Made</h6>\n";
-			print "<br><form><input class='btn' type='submit' name='action' value='Go Back'></form>";
+			print "<br><form method='post'><input class='btn' type='submit' name='action' value='Go Back'></form>";
 		}
 
+	# Checking Out
+	} elsif ($authenticated && defined $action && $action eq "Check Out") {
+		print logged_in_form($login, $password);
+		my @inBasket = read_basket($login);
+		if (@inBasket){
+			print no_action_basket(@inBasket);
 
+		} else {
+			print "<br><h6>Can't check out, basket is empty.</h6>";
+		}
 	# Searching
 	} elsif ($authenticated && defined $search_terms){
 		print logged_in_form($login, $password);
 		print main_selections();
-		print search_results($search_terms);
+		print search_results($search_terms, $login, $password);
 
 	# Home page
 	} elsif ($authenticated) {
@@ -246,6 +276,7 @@ sub main_selections {
 	<form method="post" style="display:inline;">
 		<label for="search">Search for a book:</label>
 		<input type="text" name="search_terms" id="search" size=60>
+		<input class="btn" type="submit" name="action" value="Search">
 	 	<input class="btn" type="submit" name="action" value="View Cart">
 	  	<input class="btn" type="submit" name="action" value="View Orders">
 	</form>
@@ -256,7 +287,7 @@ eof
 
 # ascii display of search results
 sub search_results {
-	my ($search_terms) = @_;
+	my ($search_terms, $login, $password) = @_;
 	my @matching_isbns = search_books($search_terms);
 	# This code is repeated. It would be good to functionise it
 	my $descriptions = get_book_descriptions(@matching_isbns);
@@ -265,7 +296,7 @@ sub search_results {
 	my $toReturn = "";
 	$toReturn .= "<p>$search_terms\n<p>@matching_isbns\n";
 	$toReturn .= "<table>\n";
-	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
+	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th><th>Actions</th>\n</tr>";
 	my $alt = 0;
 	foreach my $book (@books){
 		# Alternating colorus (set in CSS)
@@ -286,8 +317,12 @@ sub search_results {
 				$toReturn .= "<td>$detail</td>";
 			}
 		}
-		$toReturn .= "\n";
-		$toReturn .= "  </tr>\n";
+		$toReturn.="<td><form method='post'><input type='hidden' name='isbn' value='$thisBook[1]'>
+					<input type='hidden' name='login' value='$login'>
+					<input type='hidden' name='password' value='$password'>
+					<input type='hidden' name='search_terms' value='$search_terms'>
+					<input class='btn' type='submit' name='action' value='Add to Cart'></form></td>\n";
+		$toReturn .= "</tr>\n";
 	}
 	$toReturn .= "</table>\n";
 	$toReturn .= "<p>";
@@ -295,7 +330,45 @@ sub search_results {
 }
 
 sub show_basket(@){
-	my @isbns = @_;
+	my ($login, $password, @isbns) = @_;
+	my $descriptions = get_book_descriptions(@isbns);
+	my @books = split /\n/, $descriptions;
+	# Currently same code as 
+	my $toReturn .= "<table>\n";
+	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th><th>Actions</th>\n</tr>";
+	my $alt = 0;
+	foreach my $book (@books){
+		# Alternating colorus (set in CSS)
+		if ($alt == 1){
+			$toReturn .= "  <tr>\n";
+			$alt = 0;
+		} else {
+			$toReturn .= "  <tr class=\"alt\">";
+			$alt = 1;
+		}
+		my @thisBook = split /\t/, $book;
+		my $image = 1;
+		foreach my $detail (@thisBook){
+			if ($image == 1){
+				$toReturn .= "<td><img src=$detail></td>";
+				$image = 0;
+			} else {
+				$toReturn .= "<td>$detail</td>";
+			}
+		}
+		$toReturn.="<td><form method='post'><input type='hidden' name='isbn' value='$thisBook[1]'>
+					<input type='hidden' name='login' value='$login'>
+					<input type='hidden' name='password' value='$password'>
+					<input class='btn' type='submit' name='action' value='Remove from Cart'></form></td>\n";
+		$toReturn .= "  </tr>\n";
+	}
+	$toReturn .= "</table>\n<br>";
+	return $toReturn;
+}
+
+# This function exists because I'm lazy and needed a function to display the basket without actions
+sub no_action_basket(@){
+	my (@isbns) = @_;
 	my $descriptions = get_book_descriptions(@isbns);
 	my @books = split /\n/, $descriptions;
 	# Currently same code as 
@@ -321,7 +394,7 @@ sub show_basket(@){
 				$toReturn .= "<td>$detail</td>";
 			}
 		}
-		$toReturn .= "\n";
+		$toReturn.="\n";
 		$toReturn .= "  </tr>\n";
 	}
 	$toReturn .= "</table>\n<br>";
