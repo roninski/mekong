@@ -46,6 +46,8 @@ sub cgi_main {
 		$authenticated = authenticate($login, $password);
 	}
 
+
+
 	# go to specific page
 
 	# account creation
@@ -69,8 +71,39 @@ sub cgi_main {
 
 	# Basket
 	} elsif ($authenticated && defined $action && $action eq "View Cart"){
+		print logged_in_form($login, $password);
 		my @inBasket = read_basket($login);
-		print show_basket(@inBasket);
+		if (@inBasket){
+			print show_basket(@inBasket);
+			print "<br><form><input class='btn' type='submit' name='action' value='Go Back'>\n";
+			print "<form><input class='btn' type='submit' name='action' value='Check Out'></form>\n";
+		} else {
+			print "<br><h6>Cart is empty</h6>\n";
+			print "<br><form><input class='btn' type='submit' name='action' value='Go Back'></form>\n";
+		}
+
+	# View Orders
+	} elsif ($authenticated && defined $action && $action eq "View Orders"){
+		print logged_in_form($login, $password);
+		my @order_numbers = login_to_orders($login);
+		if (@order_numbers){
+			foreach my $order_num (@order_numbers){
+				my @ordered_books = ();
+				@ordered_books = read_order($order_num);
+				my $time = localtime(shift(@ordered_books));
+				my $card_no = shift(@ordered_books);
+				my $expiry_date = shift(@ordered_books);
+				print "<h6>Order #$order_num - $time</h6>";
+				print "<h6>Card no: $card_no (Expiry $expiry_date )</h6>";
+				print show_order(@ordered_books);
+			}
+			print "<br><form><input class='btn' type='submit' name='action' value='Go Back'></form>";
+
+		} else {
+			print "<br><h6>No Orders Made</h6>\n";
+			print "<br><form><input class='btn' type='submit' name='action' value='Go Back'></form>";
+		}
+
 
 	# Searching
 	} elsif ($authenticated && defined $search_terms){
@@ -213,7 +246,6 @@ sub main_selections {
 	<form method="post" style="display:inline;">
 		<label for="search">Search for a book:</label>
 		<input type="text" name="search_terms" id="search" size=60>
-		<input class="btn" type="submit" name="action" value="Search">
 	 	<input class="btn" type="submit" name="action" value="View Cart">
 	  	<input class="btn" type="submit" name="action" value="View Orders">
 	</form>
@@ -226,6 +258,7 @@ eof
 sub search_results {
 	my ($search_terms) = @_;
 	my @matching_isbns = search_books($search_terms);
+	# This code is repeated. It would be good to functionise it
 	my $descriptions = get_book_descriptions(@matching_isbns);
 	my @books = split /\n/, $descriptions;
 	# "%s %7s %s - %s\n", $isbn, $book_details{$isbn}{price}, $title, $authors
@@ -266,7 +299,7 @@ sub show_basket(@){
 	my $descriptions = get_book_descriptions(@isbns);
 	my @books = split /\n/, $descriptions;
 	# Currently same code as 
-	$toReturn .= "<table>\n";
+	my $toReturn .= "<table>\n";
 	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
 	my $alt = 0;
 	foreach my $book (@books){
@@ -291,8 +324,41 @@ sub show_basket(@){
 		$toReturn .= "\n";
 		$toReturn .= "  </tr>\n";
 	}
-	$toReturn .= "</table>\n";
-	$toReturn .= "<p>";
+	$toReturn .= "</table>\n<br>";
+	return $toReturn;
+}
+
+sub show_order(@){
+	my @isbns = @_;
+	my $descriptions = get_book_descriptions(@isbns);
+	my @books = split /\n/, $descriptions;
+	# Currently same code as 
+	my $toReturn .= "<table>\n";
+	$toReturn .= "  <tr>\n<th>Cover</th><th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
+	my $alt = 0;
+	foreach my $book (@books){
+		# Alternating colorus (set in CSS)
+		if ($alt == 1){
+			$toReturn .= "  <tr>\n";
+			$alt = 0;
+		} else {
+			$toReturn .= "  <tr class=\"alt\">";
+			$alt = 1;
+		}
+		my @thisBook = split /\t/, $book;
+		my $image = 1;
+		foreach my $detail (@thisBook){
+			if ($image == 1){
+				$toReturn .= "<td><img src=$detail></td>";
+				$image = 0;
+			} else {
+				$toReturn .= "<td>$detail</td>";
+			}
+		}
+		$toReturn .= "\n";
+		$toReturn .= "  </tr>\n";
+	}
+	$toReturn .= "</table>\n<br>";
 	return $toReturn;
 }
 
@@ -314,6 +380,8 @@ Content-Type: text/html
 <body>
 <p>
 <div class="container">
+<h1>Mekong!<h2>
+<h5>Buy some awesome books!</h5>
 eof
 }
 

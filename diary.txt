@@ -15,17 +15,13 @@ Date		Start	Stop	Activity		Comments
 2013/11/03	21:30	21:55	Debugging		Fixing code for account creation
 2013/11/03	22:15	22:30	Form Building	Adding more search bar locations and buttons for cart and orders
 2013/11/03	22:30	23:05	Coding			Added code to display cart	
+2013/11/03	23:05	00:10	Coding			Added code to display orders. Currently overlaps with cart display code
+2013/11/03 	00:00	00:50	Debugging		Debugging errors with order display code
+2013/11/03	01:00	01:40	Styling			Minor style changes for orders
 
 To do:
-
-Basket (Level 1)
-Add a button to display the user's basket.
-
 Check Out (Level 1)
 Add buttons and form to allow the user to checkout.
-
-Orders (Level 1)
-Add a button to allow the user to view their orders.
 
 Add/details in Search results(Level 2)
 Add buttons to allow users to view the details of any book in their search results and to add any book to their basket.
