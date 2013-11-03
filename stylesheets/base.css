@@ -43,15 +43,39 @@
 	q:before, q:after {
 		content: '';
 		content: none; }
-	table {
+	table, td, th {
+		border: 2px solid black;
+		border-color: #248E8E;
 		border-collapse: collapse;
-		border-spacing: 0; }
+		border-spacing: 5; }
+	table {
+		width:100%;
+	}
+	th {
+		height:50%;
+		font-size:1.1em;
+		font-weight:bold;
+		background-color:#248E8E;
+	}
+	td {
+		padding:10px;
+		background-color:#64DEDE;
+	}
+	tr.alt td {
+		border: 2px solid black;
+		border-color: #248E8E;
+		border-collapse: collapse;
+		border-spacing: 5;
+		padding:10px;
+		background-color:#DAEEF2;
+	}
+
 
 
 /* #Basic Styles
 ================================================== */
 	body {
-		background: #fff;
+		background: #FFF;
 		font: 14px/21px "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 		color: #444;
 		-webkit-font-smoothing: antialiased; /* Fix for webkit rendering */

@@ -5,7 +5,7 @@ Date		Start	Stop	Activity		Comments
 2013/11/03	13:30	14:00	CSS Styling		Attempted to change CSS styling to Foundation 4 CSS Theme
 2013/11/03	14:00	14:15	CSS Styling 	Switched to Skeleton CSS styling
 2013/11/03	14:15	15:00	HTML Styling	Set up HTML tables for showing search results
-2013/11/03	15:00			CSS Styling		Styled HTML search results tables
+2013/11/03	15:00	16:00	CSS Styling		Styled HTML search results tables
 
 
 To do:
@@ -13,7 +13,7 @@ Check user's Passowrd (Level 0)
 Change the login form to request a password & check this is correct.
 
 Display Search results (Level 0)
-The starting-point code you've been given display search results as simple text. They should be displayed in a HTML table complete with images.
+Make nicer, add images
 
 Interface (Level 0)
 Your web site must generate nicely formatted convenient-to-use web pages including appropriate navigation facilities and instructions for naive users. Although this is not a graphic design exercise you should produce pages with a common and somewhat distinctive look-and-feel. You may find CSS useful for this.

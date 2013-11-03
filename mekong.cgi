@@ -82,8 +82,16 @@ sub search_results {
 	$toReturn .= "<p>$search_terms\n<p>@matching_isbns\n";
 	$toReturn .= "<table>\n";
 	$toReturn .= "  <tr>\n<th>ISBN</th><th>Price</th><th>Title</th><th>Author</th>\n</tr>";
+	my $alt = 0;
 	foreach my $book (@books){
-		$toReturn .= "  <tr>\n";
+		# Alternating colorus (set in CSS)
+		if ($alt == 1){
+			$toReturn .= "  <tr>\n";
+			$alt = 0;
+		} else {
+			$toReturn .= "  <tr class=\"alt\">";
+			$alt = 1;
+		}
 		my @thisBook = split /\t/, $book;
 		foreach my $detail (@thisBook){
 			$toReturn .= "<td>$detail</td>";			
