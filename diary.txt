@@ -2,15 +2,17 @@ Diary
 Date		Start	Stop	Activity		Comments
 2013/11/02	12:10	12:30	Initialisation	Initialised repo on git and github, got all files ready for work
 2013/11/03	12:30	13:30	Remote Setup	Set up easy transferal of just the main cgi script to a remote server
-2013/11/03	13:30	14:00	CSS Styling		Attempted to change CSS styling to Foundation 4 CSS Theme
-2013/11/03	14:00	14:15	CSS Styling 	Switched to Skeleton CSS styling
-2013/11/03	14:15	15:00	HTML Styling	Set up HTML tables for showing search results
-2013/11/03	15:00	16:00	CSS Styling		Styled HTML search results tables
+2013/11/03	13:30	14:00	Styling			Attempted to change CSS styling to Foundation 4 CSS Theme
+2013/11/03	14:00	14:15	Styling 		Switched to Skeleton CSS styling
+2013/11/03	14:15	15:00	Styling			Set up HTML tables for showing search results
+2013/11/03	15:00	16:00	Styling			Styled HTML search results tables
 2013/11/03	16:30	17:15	Image handling	Handled images for books
 2013/11/03	17:15	17:45	Form Building	Set up the login form, no login handling yet
 2013/11/03	18:00	18:15	Login handling	Handled logging in
 2013/11/03	19:00	19:45	Login fixing	Ensures login screen can't be bypassed
 2013/11/03	19:45	20:15	Form Building	Built form for creating an account
+2013/11/03	20:30	21:30	Coding			Built account creation functions to handle data passed from the form
+2013/11/03	21:30	21:55	Debugging		Fixing code for account creation
 
 To do:
 Creating Accounts (Level 1)

@@ -22,21 +22,21 @@ exit 0;
 # to the search screen and it doesn't format the
 # search results at all
 
-#########################################################################################################
-#
-#
-# Most code will go here
-#
-#
-#########################################################################################################
 sub cgi_main {
 	print page_header();
 	
 	set_global_variables();
 	read_books($books_file);
-
+	# Login parameters
 	my $login = param('login');
 	my $password = param('password');
+	my $name = param('name');
+	my $street = param('street');
+	my $city = param('city');
+	my $state = param('state');
+	my $postcode = param('postcode');
+	my $email = param('email');
+
 	my $search_terms = param('search_terms');
 	my $action = param('action');
 	my $authenticated = 0;
@@ -47,14 +47,35 @@ sub cgi_main {
 	}
 
 	# go to specific page
-	if (defined $action && $action eq "Create New Account"){
+
+	# account creation
+	if (defined $action && $action eq "Create Account"){
+		if (defined $login && defined $password && defined $name && defined $street
+			&& defined $city && defined $state && defined $postcode && defined $email){
+			if (is_account_creatable($login, $password, $name, $street, $city, $state, $postcode, $email)){
+				create_new_account($login, $password, $name, $street, $city, $state, $postcode, $email);
+				print "<p>Account Created! <a href='mekong.cgi'>Click here to return to the main page and log in!</a>\n";
+			} else {
+				print "<p>$last_error</p>";
+				print create_account_form();
+			}
+		} else {
+			$last_error = "One or more fields not filled out. Please fill out all fields.";
+			print "<p>$last_error</p>";
+			print create_account_form();
+		} 
+	} elsif (defined $action && $action eq "Create New Account"){
 		print create_account_form();
+
+	# Logged in
 	} elsif ($authenticated && defined $search_terms){
 		print logged_in_form($login, $password);
 		print search_results($search_terms);
 	} elsif ($authenticated) {
 		print logged_in_form($login, $password);
 		print search_form();
+
+	# Failed login
 	} else {
 		if (defined $login || defined $password){
 			print "<p>$last_error</p>";
@@ -96,23 +117,83 @@ sub create_account_form{
 	<br>
 	<br>
 <form method="post">
-	<label for="login">Username:</label>
-	<input type="text" name="login" id="login" width="20" />
-	<label for="password">Password:</label>
-	<input type="password" name="password" id="password" width="20" />
-	<label for="name">Name:</label>
-	<input type="text" name="name" id="name" />
-	<label for="address">Street Address:</label>
-	<input type="text" name="address" id="address" />
+	<label for="login">Username (3-8 characters):</label>
+	<input type="text" name="login" id="login" width="10" />
+	<label for="password">Password (At least 5 characters, no spaces):</label>
+	<input type="password" name="password" id="password" width="10" />
+	<label for="name">Full Name:</label>
+	<input type="text" name="name" id="name" width="50" />
+	<label for="street">Street Address:</label>
+	<input type="text" name="street" id="address" width="50" />
 	<label for="city">City:</label>
-	<input type="text" name="city" id="city" />
+	<input type="text" name="city" id="city" width="25" />
 	<label for="state">State:</label>
-	<input type="text" name="state" id="state" />
+	<input type="text" name="state" id="state" width="25" />
 	<label for="postcode">Postcode:</label>
-	<input type="text" name="postcode" id="postcode" width="6" />
+	<input type="text" name="postcode" id="postcode" width="25" />
+	<label for="email">Email:</label>
+	<input type="text" name="email" id="email" width="35" />
 	<input class="btn" type="submit" name="action" value="Create Account">
 </form>
 eof
+}
+
+# Returns false if not creatable for any reason, and sets $last_error to the reason
+# Returns true if creatable
+sub is_account_creatable{
+	# A lot of this probably shouldn't be hard coded, but functionality is more important at the moment
+	my ($login, $password, $name, $street, $city, $state, $postcode, $email) = @_;
+	if (!legal_login($login)){
+		return 0;
+	}
+	if (-r "$users_dir/$login") {
+		$last_error = "Invalid user name: login already exists.\n";
+		return 0;
+	}
+	if (!open(USER, ">$users_dir/$login")) {
+		$last_error = "Can not create user file $users_dir/$login: $!\n";
+		return 0;
+	}
+	close(USER);
+	unlink "$users_dir/$login";
+	if (!legal_password($password)) {
+		return 0;
+	} elsif (length($name) == 0 || length($street) == 0 || length($city) == 0 || 
+			 length($state) == 0 || length($postcode) == 0 || length($email) == 0){
+		$last_error = "One or more fields not filled out. Please fill out all fields.";
+		return 0;
+	} elsif (length($name) > 50){
+		$last_error = "Name too long.\n";
+		return 0;
+	} elsif (length($street) > 50){
+		$last_error = "Street name too long.\n";
+		return 0;
+	} elsif (length($city) > 25){
+		$last_error = "City name too long.\n";
+		return 0;
+	} elsif (length($state)>25){
+		$last_error = "State name too long.\n";
+		return 0;
+	} elsif (length($postcode)>25){
+		$last_error = "Postcode too long.\n";
+		return 0;
+	} elsif (length($email)>35){
+		$last_error = "Email address too long.\n";
+		return 0;
+	} elsif ($email !~ /.*@.*\..*/){
+		$last_error = "Not a real email.\n";
+		return 0;
+	}
+
+	return 1;
+}
+
+sub create_new_account{
+	my ($login, $password, $name, $street, $city, $state, $postcode, $email) = @_;
+	open(USER, ">$users_dir/$login");
+	print USER
+	"password=$password\nname=$name\nstreet=$street\ncity=$street\nstate=$state\npostcode=$postcode\nemail=$email";
+	close(USER);
 }
 
 # simple search form
@@ -120,7 +201,8 @@ sub search_form {
 	return <<eof;
 	<p>
 	<form>
-		search: <input type="text" name="search_terms" size=60></input>
+		<label for="search">Search for a book:</label>
+		<input type="text" name="search_terms" id="search" size=60></input>
 	</form>
 	<p>
 eof
@@ -297,7 +379,6 @@ sub legal_expiry_date {
 	$last_error = "Invalid expiry date - must be mm/yy, e.g. 11/04.\n";
 	return 0;
 }
-
 
 
 # return total cost of specified books
